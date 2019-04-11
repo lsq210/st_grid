@@ -1,4 +1,5 @@
 from operator import itemgetter
+from datetime import datetime
 from itertools import groupby
 import os
 import math
@@ -35,7 +36,7 @@ class ST_GRID:
         for row in raw_data:
             row_split = row.split()
             if row_split[3] == '0.0':
-                ST_GRID.samples.append(Sample(index, row_split[0], row_split[1], row_split[5], row_split[4]))
+                ST_GRID.samples.append(Sample(index, row_split[0], row_split[1], float(row_split[5]), float(row_split[4])))
                 index += 1
         ST_GRID.samples = ST_GRID.groupby(ST_GRID.samples)
     
@@ -61,27 +62,42 @@ class ST_GRID:
             print('\n\n')
         print('days {}'.format(len(ST_GRID.samples)))
 
-        
+     
+    @staticmethod   
     def hav(theta):
         s = math.sin(theta / 2)
         return s * s
 
-    def get_distance(lat0, lng0, lat1, lng1):
+    @staticmethod
+    def get_st_distance(sample0, sample1):
         # "用haversine公式计算球面两点间的距离。返回单位为米
         # 经纬度转换成弧度
-        lat0 = math.radians(lat0)
-        lat1 = math.radians(lat1)
-        lng0 = math.radians(lng0)
-        lng1 = math.radians(lng1)
+        lat0 = math.radians(sample0.lat)
+        lat1 = math.radians(sample1.lat)
+        lng0 = math.radians(sample0.lng)
+        lng1 = math.radians(sample1.lng)
 
         dlng = math.fabs(lng0 - lng1)
         dlat = math.fabs(lat0 - lat1)
-        h = hav(dlat) + math.cos(lat0) * math.cos(lat1) * hav(dlng)
-        distance = 2 * EARTH_RADIUS * math.asin(math.sqrt(h))
-        return distance * 1000
+        h = ST_GRID.hav(dlat) + math.cos(lat0) * math.cos(lat1) * ST_GRID.hav(dlng)
+        distance = 2 * 1000 * EARTH_RADIUS * math.asin(math.sqrt(h))
+        t0 = datetime.strptime(sample0.date + ' ' + sample0.time, "%Y-%m-%d %H:%M:%S")
+        t1 = datetime.strptime(sample1.date + ' ' + sample1.time, "%Y-%m-%d %H:%M:%S")
+        st_distance = math.sqrt(distance * distance + C * (t0 - t1)/1000 * (t0 - t1)/1000)
+        return st_distance
     
-    def  get_st_distance():
-        pass
+    @staticmethod
+    def sovle_k_distance():
+        for group in ST_GRID.samples:
+            for i in range(len(group)):
+                st_distance_list = []
+                for j in range(len(group)):
+                    if (i == j):
+                        continue
+                    st_distance = ST_GRID.get_st_distance(group[i], group[j])
+                    print(st_distance)
+                    return
+                    
     
     @staticmethod
     def plot_k_dist(k):

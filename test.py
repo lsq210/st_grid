@@ -7,3 +7,4 @@ files = [x for x in all_files if '.csv' in x]
 for file_name in files:
     ST_GRID.init()
     ST_GRID.load_samples(folder + file_name)
+    ST_GRID.sovle_k_distance()

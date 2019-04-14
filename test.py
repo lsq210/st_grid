@@ -8,3 +8,5 @@ for file_name in files:
     ST_GRID.init()
     ST_GRID.load_samples(folder + file_name)
     ST_GRID.sovle_k_distance()
+    # ST_GRID.print_samples()
+    ST_GRID.plot_k_dist()
